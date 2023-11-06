@@ -58,7 +58,7 @@ public class ArbolBinario {
 
     private void imprimirPre(Nodo reco) {
         if (reco != null) {
-            System.out.println(reco.id + ";" + reco.ape + ";" + reco.nom + ";" + reco.ciu);
+            System.out.println(reco.id + ";" + reco.ape + ";" + reco.nom + ";" + reco.ciu + ";" + reco.edad + ";" + reco.semestre + ";" + reco.sexo);
             imprimirPre(reco.izq);
             imprimirPre(reco.der);
         }
@@ -72,7 +72,7 @@ public class ArbolBinario {
     private void imprimirEntre(Nodo reco) {
         if (reco != null) {
             imprimirEntre(reco.izq);
-            System.out.println(reco.id + ";" + reco.ape + ";" + reco.nom + ";" + reco.ciu);
+            System.out.println(reco.id + ";" + reco.ape + ";" + reco.nom + ";" + reco.ciu + ";" + reco.edad + ";" + reco.semestre + ";" + reco.sexo);
             imprimirEntre(reco.der);
         }
     }
@@ -86,7 +86,7 @@ public class ArbolBinario {
         if (reco != null) {
             imprimirPost(reco.izq);
             imprimirPost(reco.der);
-            System.out.println(reco.id + ";" + reco.ape + ";" + reco.nom + ";" + reco.ciu);
+            System.out.println(reco.id + ";" + reco.ape + ";" + reco.nom + ";" + reco.ciu + ";" + reco.edad + ";" + reco.semestre + ";" + reco.sexo);
         }
     }
 

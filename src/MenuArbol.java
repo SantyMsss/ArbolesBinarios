@@ -1,13 +1,28 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
 import javax.swing.JOptionPane;
 
 public class MenuArbol {
 
     ArbolBinario ab = new ArbolBinario();
     String noms[] = {"Ana", "Sandra", "Lucia", "Caro", "Lorena", "Camilo", "Pablo", "Juan", "Luis", "Pepe"};
-    String apes[] = {"Rios", "Roa", "Perez", "Mena", "Garcia", "Martinez", "Hernandez", "Arias", "Castro", "Cobo"};
-    String ciuds[] = {"Buga", "Cali", "Tulua", "Zarzal", "Trujillo", "Darien"};
+    String apes[] = {"Rios", "Serna", "Perez", "Mena", "Garcia", "Martinez", "Hernandez", "Arias", "Castro", "Cobo"};
+    String ciuds[] = {"Buga", "Cali", "Tulua", "Zarzal", "Trujillo", "Darien", "Cartago", "Palmira"};
+
+    // SE AGREGAN LAS TRES CAMPOS MAS DEL CLIENTE
+    String edades[] = {"18", "19", "20", "21", "22", "23", "24", "25", "26", "27"};
+    String semestres[] = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
+    String sexos[] = {"Masculino", "Femenino"};
+
+
+
     int ids[] = new int[100000];
+
     
+    // FUNCIONES QUE SE ENCARGAN DE LA CREACION DE LOS DATOS EN UN ARCHIVO CSV
     public void crearIds(){
         for (int i = 0; i < ids.length; ) {
             int n = 1 + (int)(Math.random() * 1000000);
@@ -24,41 +39,138 @@ public class MenuArbol {
         }
         return false;
     }
+
+
+    public void crearDatos() {
+        // Crear IDs aleatorios y únicos
+        crearIds();
     
-    public void crearDatos(){
-        crearIds(); // primero crear IDS aleatorios y que no se repitan
-        for (int i = 0; i < ids.length; i++) {
-            Nodo nuevo = new Nodo(); // crear el nodo
-            nuevo.id = ids[i];
-            nuevo.ape = apes[(int)(Math.random() * apes.length)];
-            nuevo.nom = noms[(int)(Math.random() * noms.length)];
-            nuevo.ciu = ciuds[(int)(Math.random() * ciuds.length)];
-            ab.insertar(nuevo); // insertar el nodo en el arbol
+        // Crear un objeto FileWriter para escribir en el archivo CSV
+        try (FileWriter writer = new FileWriter("datos_generados.csv")) {
+            for (int i = 0; i < ids.length; i++) {
+                Nodo nuevo = new Nodo();
+                nuevo.id = ids[i];
+                nuevo.ape = apes[(int)(Math.random() * apes.length)];
+                nuevo.nom = noms[(int)(Math.random() * noms.length)];
+                nuevo.ciu = ciuds[(int)(Math.random() * ciuds.length)];
+
+                nuevo.edad = edades[(int)(Math.random() * edades.length)];
+                nuevo.semestre = semestres[(int)(Math.random() * semestres.length)];
+                nuevo.sexo = sexos[(int)(Math.random() * sexos.length)];
+                ab.insertar(nuevo);
+    
+                // Escribir el registro en el archivo CSV
+                String registro = String.format("%d;%s;%s;%s;%s;%s;%s\n", nuevo.id, nuevo.ape, nuevo.nom, nuevo.ciu, nuevo.edad, nuevo.semestre, nuevo.sexo);
+                writer.write(registro);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
+    
+
+    public void CargarDatos() {
+        try (BufferedReader reader = new BufferedReader(new FileReader("datos_generados.csv"))) {
+            String linea;
+            while ((linea = reader.readLine()) != null) {
+                String[] partes = linea.split(";");
+                if (partes.length == 7) {
+                    int id = Integer.parseInt(partes[0]);
+                    String ape = partes[1];
+                    String nom = partes[2];
+                    String ciu = partes[3];
+                    String edad = partes[4];
+                    String semestre = partes[5];
+                    String sexo = partes[6];
+                    Nodo nuevo = new Nodo();
+                    nuevo.id = id;
+                    nuevo.ape = ape;
+                    nuevo.nom = nom;
+                    nuevo.ciu = ciu;
+                    nuevo.edad = edad;
+                    nuevo.semestre = semestre;
+                    nuevo.sexo = sexo;
+                    ab.insertar(nuevo);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    // FUNCIONES ENCARGADAS DE RECORRER EL ARBOL EN ENTRE ORDEN Y GUARDAR LOS DATOS EN UN ARCHIVO CSV LLAMADO "datos_ordenados.csv"
+    public void RecorrerOrden() {
+        
+        CargarDatos();
+
+        long tiempoInicio = System.currentTimeMillis();
+
+
+        try (FileWriter writer = new FileWriter("datos_ordenados.csv")) {
+            RecorrerOrden(ab.raiz, writer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Detener el cronómetro
+    long tiempoFin = System.currentTimeMillis();
+
+    // Calcular la duración del proceso
+    long tiempoTotal = tiempoFin - tiempoInicio;
+    JOptionPane.showMessageDialog(null, "Tiempo de ejecucion: " + tiempoTotal + " milisegundos");
+    JOptionPane.showMessageDialog(null, "Archivo datos_ordenados.csv creado exitosamente");
+
+    }
+    
+    private void RecorrerOrden(Nodo reco, FileWriter writer) throws IOException {
+
+        if (reco != null) {
+            RecorrerOrden(reco.izq, writer);
+            String registro = String.format("%d;%s;%s;%s;%s;%s;%s\n", reco.id, reco.ape, reco.nom, reco.ciu, reco.edad, reco.semestre, reco.sexo);
+            writer.write(registro);
+            RecorrerOrden(reco.der, writer);
+        }
+    }
+
+
+
+
+
     
     public void menu() {
         boolean salir = false;
         do {
             String opc = JOptionPane.showInputDialog(
                     """
-                    1. Adicionar
+                     
+                    1. Recorrido del árbol
                     2. Pre-orden
                     3. Entre-orden
                     4. Pos-orden
                     0. Salir
+                    100. Crear datos aleatorios
                     Seleccione una opcion: """);
             switch (opc) {
-                case "1" -> crearDatos();
+                case "1" -> RecorrerOrden();
                 case "2" -> ab.imprimirPre();
                 case "3" -> ab.imprimirEntre();
                 case "4" -> ab.imprimirPost();
                 case "0" -> salir = true;
+                case "100" -> crearDatos();
                 default -> 
                     JOptionPane.showMessageDialog(null, "Opcion incorrecta");
             }
         } while (!salir);
     }
+
+
+
+
+
+
+
+
 
     public static void main(String[] args) {
         MenuArbol ma = new MenuArbol();
